@@ -1,0 +1,7 @@
+{
+  "name": "Pronoun Bio Scraper",
+  "description": "Scrapes pronouns from the user bios and puts them next to the message timestamp of the user's messages. (PronounDB but better)",
+  "author": "Swishilicous#3200",
+  "file": "index.jsx",
+  "license": "GPL-3.0"
+}
