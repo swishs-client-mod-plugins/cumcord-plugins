@@ -27,7 +27,6 @@ jobs:
             - name: Build plugin(s)
               run: |
                   mkdir .dist
-                  cd plugins
                   for plugin in */
                   do
                     cd "$plugin"
