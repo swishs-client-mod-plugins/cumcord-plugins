@@ -7,11 +7,12 @@
  * https://opensource.org/licenses/GPL-3.0
  * 
  *
- * @copyright Copyright (c) 2021 Paige Jordan
+ * @copyright Copyright (c) 2022 Paige Jordan
  * @license   GPL-3.0 GNU General Public License v3.0
  * @link      https://github.com/swishs-client-mod-plugins/cumcord-plugins/pronoun-bio-scraper
  */
 
+import Settings from './Settings';
 import OverrideModal from './OverrideModal';
 
 import { after } from '@cumcord/patcher';
@@ -20,6 +21,7 @@ import { findInReactTree } from '@cumcord/utils';
 import { find, findByProps } from '@cumcord/modules/webpack';
 
 const { getMessage } = findByProps('getMessages');
+const { fetchProfile } = findByProps('fetchProfile');
 const { getUserProfile } = findByProps('getUserProfile');
 const { getChannelId } = findByProps('getVoiceChannelId');
 const { openModal } = findByProps('openModal', 'openModalLazy');
@@ -54,6 +56,7 @@ export default () => {
           : unloaded ? extractPronouns(author?.bio)
             : 'still loading';
         if (!bio) return;
+        if (!unloaded && persist.ghost.fetch) fetchProfile(message?.author?.id);
         unpatch.push(after('children', res.props.children.props, (_, res) => {
           if (res.props.children.props.children[1] === 'edited') return;
           res.props.children.props.children[1] += ` • ${bio}`;
@@ -75,6 +78,7 @@ export default () => {
         return res;
       }));
     },
-    onUnload() { unpatch.forEach(unpatch => unpatch()); }
+    onUnload() { unpatch.forEach(unpatch => unpatch()); },
+    settings: <Settings />
   };
 };
