@@ -68,7 +68,7 @@ export default () => {
         }));
       }));
       unpatch.push(after('default', MessageContextMenu, ([args], res) => {
-        if (!filndInReactTree(res, c => c?.props?.id == 'pronouns'))
+        if (!findInReactTree(res, c => c?.props?.id == 'pronouns'))
           res.props.children.push(
             <Menu.MenuGroup>
               <Menu.MenuItem
