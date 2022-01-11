@@ -18,13 +18,14 @@ import OverrideModal from './OverrideModal';
 import { after } from '@cumcord/patcher';
 import { persist } from '@cumcord/pluginData';
 import { findInReactTree } from '@cumcord/utils';
+import { FluxDispatcher } from '@cumcord/modules/common';
 import { find, findByProps } from '@cumcord/modules/webpack';
 
-const { getMessage } = findByProps('getMessages');
 const { fetchProfile } = findByProps('fetchProfile');
 const { getUserProfile } = findByProps('getUserProfile');
 const { getChannelId } = findByProps('getVoiceChannelId');
 const { openModal } = findByProps('openModal', 'openModalLazy');
+const { getMessage } = findByProps('getMessages', 'getMessage');
 const { getUser: getCachedUser } = findByProps('getUser', 'getCurrentUser');
 
 const Menu = findByProps('MenuGroup', 'MenuItem');
@@ -51,9 +52,9 @@ export default () => {
         let message = getMessage(getChannelId(), args.id?.substring(18));
         let author = getCachedUser(message?.author?.id);
         let unloaded = !getUserProfile(message?.author?.id);
-        if (unloaded && persist.ghost.fetch && !(fetched.includes(message?.author?.id)) && loaded.includes(message?.id)) {
-          fetched.push(message?.author?.id); fetchProfile(message?.author?.id);
-        } // loaded means that the message must be rerendered at least once so you don't spam the api when you open a new channel
+        if (unloaded && persist.ghost.fetch && !(fetched.includes(message?.author?.id)) && loaded.includes(message?.id) && !FluxDispatcher._currentDispatchActionType) {
+          fetched.push(message?.author?.id); fetchProfile(message?.author?.id); // fetched is used to make sure that the plugin doesn't fire more than one api request serving the same purpose
+        } // loaded is used so that the message must be rerendered at least once before it fetches the user so you don't spam the api when you open a new channel
         if (!loaded.includes(message?.id))
           loaded.push(message?.id);
         let bio = message?.author?.id in persist
