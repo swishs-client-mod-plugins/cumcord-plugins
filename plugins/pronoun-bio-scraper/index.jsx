@@ -43,20 +43,24 @@ const extractPronouns = (bio) => {
   if (match) return match[0];
 };
 
-let unpatch = [];
+let unpatch = [], loaded = [], fetched = [];
 export default () => {
   return {
     onLoad() {
       unpatch.push(after('default', MessageTimestamp, ([args], res) => {
         let message = getMessage(getChannelId(), args.id?.substring(18));
         let author = getCachedUser(message?.author?.id);
-        let unloaded = getUserProfile(message?.author?.id);
+        let unloaded = !getUserProfile(message?.author?.id);
+        if (unloaded && persist.ghost.fetch && !(fetched.includes(message?.author?.id)) && loaded.includes(message?.id)) {
+          fetched.push(message?.author?.id); fetchProfile(message?.author?.id);
+        } // loaded means that the message must be rerendered at least once so you don't spam the api when you open a new channel
+        if (!loaded.includes(message?.id))
+          loaded.push(message?.id);
         let bio = message?.author?.id in persist
           ? persist[message.author.id]
-          : unloaded ? extractPronouns(author?.bio)
+          : !unloaded ? extractPronouns(author?.bio)
             : 'still loading';
         if (!bio) return;
-        if (!unloaded && persist.ghost.fetch) fetchProfile(message?.author?.id);
         unpatch.push(after('children', res.props.children.props, (_, res) => {
           if (res.props.children.props.children[1] === 'edited') return;
           res.props.children.props.children[1] += ` • ${bio}`;
@@ -64,7 +68,7 @@ export default () => {
         }));
       }));
       unpatch.push(after('default', MessageContextMenu, ([args], res) => {
-        if (!findInReactTree(res, c => c?.props?.id == 'pronouns'))
+        if (!filndInReactTree(res, c => c?.props?.id == 'pronouns'))
           res.props.children.push(
             <Menu.MenuGroup>
               <Menu.MenuItem
