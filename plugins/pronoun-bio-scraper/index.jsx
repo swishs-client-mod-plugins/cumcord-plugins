@@ -34,7 +34,7 @@ const MessageContextMenu = find(m => m.default?.displayName === 'MessageContextM
 
 const extractPronouns = (bio) => {
   if (!bio) return;
-  bio = bio.replace(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/, '');
+  bio = bio.replace(/(http(s)?:\/\/.)?(www\.)?[-a-z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-z0-9@:%_\+.~#?&//=]*)/gi, '');
   let match = bio.match(/[a-z]+?(?:\/[a-z]+)+/i);
   if (!match && ~bio.indexOf('pronouns')) {
     if (~bio.indexOf('any')) return 'any pronouns';
@@ -55,7 +55,7 @@ export default () => {
         if (unloaded && persist.ghost.fetch && !(fetched.includes(message?.author?.id)) && loaded.includes(message?.id) && !FluxDispatcher._currentDispatchActionType) {
           fetched.push(message?.author?.id); fetchProfile(message?.author?.id); // fetched is used to make sure that the plugin doesn't fire more than one api request serving the same purpose
         } // loaded is used so that the message must be rerendered at least once before it fetches the user so you don't spam the api when you open a new channel
-        if (!loaded.includes(message?.id))
+        if (persist.ghost.fetch && !loaded.includes(message?.id))
           loaded.push(message?.id);
         let bio = message?.author?.id in persist
           ? persist[message.author.id]
