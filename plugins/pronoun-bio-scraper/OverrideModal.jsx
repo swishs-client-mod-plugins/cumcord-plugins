@@ -17,16 +17,18 @@ import { ErrorBoundary } from '@cumcord/ui/components';
 import { persist } from '@cumcord/pluginData';
 
 const Flex = findByDisplayName('Flex');
+const Anchor = findByDisplayName('Anchor');
 const Button = findByProps('DropdownSizes');
 const Header = findByProps('Sizes', 'Tags');
 const TextInput = findByDisplayName('TextInput');
+const classes = findByProps('anchorUnderlineOnHover');
 const ModalComponents = findByProps('ModalCloseButton');
 const getUser = findByProps('getUser', 'filter').getUser;
 
 export default ({ e, author, extract }) => {
-  const defaultPronouns = author in persist
-    ? persist[author] : extract(getUser(author).bio);
-  const [pronouns, setPronouns] = React.useState(defaultPronouns);
+  const defaultPronouns = extract(getUser(author).bio) ?? '';
+  const placeholderPronouns = author in persist ? persist[author] : defaultPronouns;
+  const [pronouns, setPronouns] = React.useState(placeholderPronouns);
   const onEnter = (event) => {
     if (event.key !== 'Enter') return;
     persist[author] = pronouns;
@@ -55,9 +57,19 @@ export default ({ e, author, extract }) => {
         </ModalComponents.ModalHeader>
         <ModalComponents.ModalContent>
           <TextInput
-            onChange={(p) => { setPronouns(p); }}
+            style={{ paddingBottom: '10px' }}
+            placeholder='cum/cumself'
+            onChange={setPronouns}
             value={pronouns}
           />
+          <div style={{ marginTop: '3px' }} />
+          <Anchor
+            onClick={() => setPronouns(defaultPronouns)}
+            className={classes.anchorUnderlineOnHover}
+            style={{ fontSize: '14px' }}
+            cursor='pointer'>
+            Reset Pronouns
+          </Anchor>
         </ModalComponents.ModalContent>
         <ModalComponents.ModalFooter>
           <Button
