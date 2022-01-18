@@ -9,12 +9,12 @@
  *
  * @copyright Copyright (c) 2022 Paige Jordan
  * @license   GPL-3.0 GNU General Public License v3.0
- * @link      https://github.com/swishs-client-mod-plugins/cumcord-plugins/pronoun-bio-scraper
+ * @link      https://github.com/swishs-client-mod-plugins/cumcord-plugins/tree/main/plugins/pronoun-bio-scraper
  */
 
-import { findByProps, findByDisplayName } from '@cumcord/modules/webpack';
-import { ErrorBoundary } from '@cumcord/ui/components';
 import { persist } from '@cumcord/pluginData';
+import { ErrorBoundary } from '@cumcord/ui/components';
+import { findByProps, findByDisplayName } from '@cumcord/modules/webpack';
 
 const Flex = findByDisplayName('Flex');
 const Anchor = findByDisplayName('Anchor');
@@ -57,7 +57,6 @@ export default ({ e, author, extract }) => {
         </ModalComponents.ModalHeader>
         <ModalComponents.ModalContent>
           <TextInput
-            style={{ paddingBottom: '10px' }}
             placeholder='cum/cumself'
             onChange={setPronouns}
             value={pronouns}
