@@ -1,0 +1,7 @@
+{
+  "name": "Reaction Notifications",
+  "description": "Notifies you when you get reactions and adds recent reaction additions to the inbox.",
+  "author": "Swishilicous#3200",
+  "file": "index.jsx",
+  "license": "GPL-3.0"
+}

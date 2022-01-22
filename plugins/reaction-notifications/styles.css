@@ -1,0 +1,46 @@
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the GNU General Public License (GPL-3.0).
+ * You can find more information in the LICENSE.md file.
+ * More information is also avaliable at this URL:
+ * https://opensource.org/licenses/GPL-3.0
+ */
+
+.reaction-notifications-body {
+  display: grid;
+  grid-gap: 12px;
+  padding: 8px 20px;
+  align-items: center;
+  border-radius: 0 0 0 0;
+  grid-template-columns: 32px auto 40px;
+}
+
+.reaction-notifications-username {
+  flex-grow: 1;
+  cursor: pointer;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  color: var(--text-normal);
+}
+
+.reaction-notifications-container {
+  position: relative;
+  background-color: var(--background-primary);
+}
+
+.reaction-notifications-message {
+  padding: 16px 16px 4px 0;
+}
+
+.reaction-notifications-username:hover {
+  text-decoration: underline;
+}
+
+.reaction-notifications-first-message {
+  border-radius: 8px 8px 0 0;
+}
+
+.reaction-notifications-last-reaction {
+  border-radius: 0 0 8px 8px;
+}
