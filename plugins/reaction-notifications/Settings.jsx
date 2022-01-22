@@ -33,11 +33,11 @@ export default () => {
   useNest(persist);
 
   const defaults = {
-    inbox: true,
-    createSound: true,
+    link: '',
     volume: 1,
+    createSound: true,
     mentionSound: true,
-    link: ''
+    sendInChannel: true,
   };
 
   for (let value in defaults)
@@ -47,22 +47,38 @@ export default () => {
     <>
       <FormTitle>INBOX</FormTitle>
       <SwitchItem
-        onChange={() => persist.store.inbox = !persist.ghost.inbox}
-        value={persist.ghost.inbox}>
-        Enable Recent Reactions in Inbox
+        onChange={() => persist.store.disableInbox = !persist.ghost.disableInbox}
+        value={persist.ghost.disableInbox}
+        hideBorder={true}>
+        Disable recent reactions in inbox (requires reload)
+      </SwitchItem>
+      <SwitchItem
+        note='Add reactions to the inbox even if the reaction is from the current channel.'
+        onChange={() => persist.store.addFromCurrent = !persist.ghost.addFromCurrent}
+        value={persist.ghost.addFromCurrent}
+        disabled={persist.ghost.disableInbox}>
+        Add to inbox from current channel
       </SwitchItem>
       <FormTitle>NOTIFICATIONS</FormTitle>
       <SwitchItem
         onChange={() => persist.store.disableNotifications = !persist.ghost.disableNotifications}
         value={persist.ghost.disableNotifications}
         hideBorder={true}>
-        Disable Notifications
+        Disable notifications
       </SwitchItem>
       <SwitchItem
         onChange={() => persist.store.sendInDND = !persist.ghost.sendInDND}
         value={persist.ghost.sendInDND}
+        disabled={persist.ghost.disableNotifications}
+        hideBorder={true}>
+        Send notifications while in DND mode
+      </SwitchItem>
+      <SwitchItem
+        note='Send notifications even if the reaction is from the current channel.'
+        onChange={() => persist.store.sendInCurrent = !persist.ghost.sendInCurrent}
+        value={persist.ghost.sendInCurrent}
         disabled={persist.ghost.disableNotifications}>
-        Send Notifications while in DND Mode
+        Send notifications from the current channel
       </SwitchItem>
       <FormTitle className={`${classes.notificationSound} ${classes.soundRow}`}>
         AUDIO
@@ -81,14 +97,14 @@ export default () => {
         onChange={() => persist.store.createSound = !persist.ghost.createSound}
         value={persist.ghost.createSound}
         hideBorder={true}>
-        Create Sound on Notification
+        Create sound on notification
       </SwitchItem>
       <SwitchItem
         onChange={() => persist.store.mentionSound = !persist.ghost.mentionSound}
         value={persist.ghost.mentionSound}
         disabled={!persist.ghost.createSound}
         hideBorder={true}>
-        Use Default Mention Sound
+        Use default mention sound
       </SwitchItem>
       <FormTitle>AUDIO LINK</FormTitle>
       <TextInput

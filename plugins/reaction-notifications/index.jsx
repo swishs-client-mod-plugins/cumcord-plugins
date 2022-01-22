@@ -28,6 +28,7 @@ import * as ReactionCard from './ReactionCard';
 const { getGuild } = findByProps('getGuild');
 const { getChannel } = findByProps('getDMUserIds');
 const { transitionTo } = findByProps('transitionTo');
+const { getChannelId } = findByProps('getVoiceChannelId');
 const { showNotification } = findByProps('showNotification');
 const { getStatus } = findByProps('getStatus', 'getPresence');
 const { getMessage } = findByProps('getMessage', 'getMessages');
@@ -55,31 +56,37 @@ const onReaction = reaction => {
       const channel = getChannel(reaction.channelId);
       const guild = getGuild(channel.guild_id);
 
-      if (!persist.ghost.reactions[channel.id])
-        persist.store.reactions[channel.id] = { channel };
+      if (!(!persist.ghost.addFromCurrent && getChannelId() === channel.id)) {
+        if (!persist.ghost.disableInbox) {
+          if (!persist.ghost.reactions[channel.id])
+            persist.store.reactions[channel.id] = { channel };
 
-      if (!persist.ghost.reactions[channel.id][message.id])
-        persist.store.reactions[channel.id][message.id] = [message];
+          if (!persist.ghost.reactions[channel.id][message.id])
+            persist.store.reactions[channel.id][message.id] = [message];
 
-      persist.store.reactions[channel.id][message.id].push({
-        reaction, guild, user, message, channel,
-        count: message.reactions.find(_reaction =>
-          _reaction.emoji.name === reaction.emoji.name
-          && _reaction.emoji.id === reaction.emoji.id).count,
-      });
+          persist.store.reactions[channel.id][message.id].push({
+            reaction, guild, user, message, channel,
+            count: message.reactions.find(_reaction =>
+              _reaction.emoji.name === reaction.emoji.name
+              && _reaction.emoji.id === reaction.emoji.id).count,
+          });
+        }
+      }
 
-      if (persist.ghost.sendInDND || getStatus(currentUser) !== 'dnd') {
-        showNotification(
-          user.getAvatarURL(),
-          `${user.username}${guild ? ` (#${channel.name}, ${guild.name})` : ''}`,
-          `New Reaction: ${reaction.emoji.name}`, {
-          onClick: () => transitionTo(path)
-        });
+      if (!(!persist.ghost.sendInCurrent && getChannelId() === channel.id)) {
+        if (persist.ghost.sendInDND || getStatus(currentUser) !== 'dnd') {
+          showNotification(
+            user.getAvatarURL(),
+            `${user.username}${guild ? ` (#${channel.name}, ${guild.name})` : ''}`,
+            `New Reaction: ${reaction.emoji.name}`, {
+            onClick: () => transitionTo(path)
+          });
 
-        if (persist.ghost.createSound) {
-          const mentionSound = 'https://discord.com/assets/dd920c06a01e5bb8b09678581e29d56f.mp3';
-          const audio = new Audio(persist.ghost.mentionSound ? mentionSound : persist.ghost.link);
-          audio.volume = persist.ghost.volume; audio.play();
+          if (persist.ghost.createSound) {
+            const mentionSound = 'https://discord.com/assets/dd920c06a01e5bb8b09678581e29d56f.mp3';
+            const audio = new Audio(persist.ghost.mentionSound ? mentionSound : persist.ghost.link);
+            audio.volume = persist.ghost.volume; audio.play();
+          }
         }
       }
     }
@@ -138,7 +145,6 @@ const PopoutContent = () => {
 
 // credits to strencher for helping me out with this
 const patchInboxComponents = () => {
-  if (!persist.ghost.inbox) return;
   const PatchedRecentMentions = ({ __originalType: original, ...props }) => {
     const rendered = original.call(this, props);
 
@@ -164,7 +170,6 @@ const patchInboxComponents = () => {
 };
 
 const patchRecentsHeader = () => {
-  if (!persist.ghost.inbox) return;
   const PatchedReadAllButton = ({ __originalType: original, ...props }) => {
     const rendered = original.call(this, props);
     if (props.tab !== 3) return rendered;
@@ -209,9 +214,11 @@ export default () => {
     onLoad() {
       if (!persist.ghost.reactions) persist.store.reactions = {};
       FluxDispatcher.subscribe('MESSAGE_REACTION_ADD', onReaction);
-      Patcher.patch(styles());
-      patchInboxComponents();
-      patchRecentsHeader();
+      if (!persist.ghost.disableInbox) {
+        Patcher.patch(styles());
+        patchInboxComponents();
+        patchRecentsHeader();
+      }
     },
     onUnload() {
       FluxDispatcher.unsubscribe('MESSAGE_REACTION_ADD', onReaction);
