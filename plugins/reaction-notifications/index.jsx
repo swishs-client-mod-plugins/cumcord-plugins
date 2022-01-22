@@ -23,10 +23,11 @@ import { find, findByProps } from '@cumcord/modules/webpack';
 import styles from './styles.css';
 import Settings from './Settings';
 import Patcher from './patch-handler';
-import * as ReactionCard from './ReactionCard';
+import ReactionCard from './ReactionCard';
 
 const { getGuild } = findByProps('getGuild');
 const { getChannel } = findByProps('getDMUserIds');
+const { fetchMessages } = findByProps('sendMessage');
 const { transitionTo } = findByProps('transitionTo');
 const { getChannelId } = findByProps('getVoiceChannelId');
 const { showNotification } = findByProps('showNotification');
@@ -46,17 +47,34 @@ const classes = {
   ...findByProps('messageContainer'),
 };
 
-const onReaction = reaction => {
-  if (persist.ghost.disableNotifications) return;
+const fakeFetcher = (channel, message) => ({
+  channelId: channel,
+  jump: {
+    flash: true,
+    messageId: message,
+  },
+  limit: 1
+});
+
+const onReaction = async (reaction) => {
   const currentUser = getCurrentUser().id;
   if (reaction?.userId !== currentUser) {
-    const message = getMessage(reaction.channelId, reaction.messageId);
+    let message = getMessage(reaction.channelId, reaction.messageId);
+
+    if (!message && persist.ghost.enableMessageCache) {
+      if (persist.ghost.messageStore[reaction.channelId]?.includes(reaction.messageId)) {
+        await fetchMessages(fakeFetcher(reaction.channelId, reaction.messageId));
+        await new Promise(resolve => setTimeout(resolve, 300)); // wait a tiny bit
+        message = getMessage(reaction.channelId, reaction.messageId);
+      }
+    }
+
     if (message?.author.id === currentUser) {
       const user = getUser(reaction.userId);
       const channel = getChannel(reaction.channelId);
       const guild = getGuild(channel.guild_id);
 
-      if (!(!persist.ghost.addFromCurrent && getChannelId() === channel.id)) {
+      if (persist.ghost.addFromCurrent || getChannelId() !== channel.id) {
         if (!persist.ghost.disableInbox) {
           if (!persist.ghost.reactions[channel.id])
             persist.store.reactions[channel.id] = { channel };
@@ -73,7 +91,8 @@ const onReaction = reaction => {
         }
       }
 
-      if (!(!persist.ghost.sendInCurrent && getChannelId() === channel.id)) {
+      if (persist.ghost.disableNotifications) return;
+      if (persist.ghost.sendInCurrent || getChannelId() !== channel.id) {
         if (persist.ghost.sendInDND || getStatus(currentUser) !== 'dnd') {
           showNotification(
             user.getAvatarURL(),
@@ -91,6 +110,16 @@ const onReaction = reaction => {
       }
     }
   }
+};
+
+const onMessage = (message) => {
+  if (!persist.ghost.enableMessageCache) return;
+  if (!message.sendMessageOptions || message.optimistic) return;
+
+  if (!persist.ghost.messageStore[message.channelId])
+    persist.store.messageStore[message.channelId] = [];
+
+  persist.store.messageStore[message.channelId].push(message.message.id);
 };
 
 const PopoutContent = () => {
@@ -213,6 +242,22 @@ export default () => {
   return {
     onLoad() {
       if (!persist.ghost.reactions) persist.store.reactions = {};
+      if (!persist.ghost.messageStore) persist.store.messageStore = {};
+
+      /* set setting defaults */
+      const defaults = {
+        link: '',
+        volume: 1,
+        createSound: true,
+        mentionSound: true,
+        sendInCurrent: true,
+      };
+
+      for (let value in defaults)
+        if (!persist.ghost.hasOwnProperty(value))
+          persist.store[value] = defaults[value];
+
+      FluxDispatcher.subscribe('MESSAGE_CREATE', onMessage);
       FluxDispatcher.subscribe('MESSAGE_REACTION_ADD', onReaction);
       if (!persist.ghost.disableInbox) {
         Patcher.patch(styles());
@@ -221,6 +266,7 @@ export default () => {
       }
     },
     onUnload() {
+      FluxDispatcher.unsubscribe('MESSAGE_CREATE', onMessage);
       FluxDispatcher.unsubscribe('MESSAGE_REACTION_ADD', onReaction);
       Patcher.unpatchAll();
     },

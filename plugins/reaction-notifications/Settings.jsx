@@ -16,10 +16,9 @@ import { useNest } from '@cumcord/utils';
 import { persist } from '@cumcord/pluginData';
 import { findByDisplayName, findByProps } from '@cumcord/modules/webpack';
 
-const { colorStatusRed } = findByProps('colorStatusRed');
-
 const Text = findByDisplayName('Text');
 const Slider = findByDisplayName('Slider');
+const Button = findByProps('DropdownSizes');
 const Divider = findByDisplayName('Divider');
 const FormText = findByDisplayName('FormText');
 const SpeakerIcon = findByDisplayName('Speaker');
@@ -31,18 +30,6 @@ const classes = findByProps('soundRow');
 
 export default () => {
   useNest(persist);
-
-  const defaults = {
-    link: '',
-    volume: 1,
-    createSound: true,
-    mentionSound: true,
-    sendInChannel: true,
-  };
-
-  for (let value in defaults)
-    if (!persist.ghost.hasOwnProperty(value))
-      persist.store[value] = defaults[value];
   return (
     <>
       <FormTitle>INBOX</FormTitle>
@@ -59,6 +46,22 @@ export default () => {
         disabled={persist.ghost.disableInbox}>
         Add to inbox from current channel
       </SwitchItem>
+      <FormTitle>MESSAGE CACHING</FormTitle>
+      <SwitchItem
+        note={`Will log every message ID sent from you so the plugin can manually request the message if it isn't cached.`}
+        onChange={() => persist.store.enableMessageCache = !persist.ghost.enableMessageCache}
+        value={persist.ghost.enableMessageCache}
+        hideBorder={true}>
+        Enable Forced Message Cache
+      </SwitchItem>
+      <Button
+        color={Button.Colors.BRAND_NEW}
+        size={Button.Sizes.MEDIUM}
+        onClick={() => persist.store.messageStore = {}}>
+        Clear Message Cache ({Object.keys(persist.ghost.messageStore).reduce((accum, current) => accum += persist.ghost.messageStore[current].length, 0)})
+      </Button>
+      <div style={{ paddingBottom: '20px' }} />
+      <Divider />
       <FormTitle>NOTIFICATIONS</FormTitle>
       <SwitchItem
         onChange={() => persist.store.disableNotifications = !persist.ghost.disableNotifications}
@@ -108,7 +111,7 @@ export default () => {
       </SwitchItem>
       <FormTitle>AUDIO LINK</FormTitle>
       <TextInput
-        size='default'
+        placeholder='https://cdn.discordapp.com/attachments/829809799553482764/847584766148345866/society.mp3'
         className='codeRedemptionInput-fKM0fu'
         onChange={(val) => persist.store.link = val}
         disabled={persist.ghost.mentionSound || !persist.ghost.createSound}
