@@ -1,0 +1,7 @@
+{
+  "name": "Permission Viewer",
+  "description": "Lets you see the permissions of channels, roles, and users.",
+  "author": "Swishilicous#3200",
+  "file": "index.jsx",
+  "license": "GPL-3.0"
+}
