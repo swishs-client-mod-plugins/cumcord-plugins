@@ -14,7 +14,7 @@
 
 import { after } from '@cumcord/patcher';
 import { constants } from '@cumcord/modules/common';
-import { find, findByProps } from '@cumcord/modules/webpack';
+import { findByProps } from '@cumcord/modules/webpack';
 
 import Patcher from './patch-handler';
 import PermissionList from './PermissionList';

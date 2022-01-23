@@ -8,10 +8,10 @@ import { before } from '@cumcord/patcher';
 import { find, findByProps } from '@cumcord/modules/webpack';
 const lazyPatchContextMenu = async (displayName, patch) => {
   const filter = m => m.default && m.default.displayName === displayName;
-  const module = find(filter, false); if (module) patch(module);
+  const module = find(filter); if (module) patch(module);
   else {
     const openContextMenuLazy = findByProps('openContextMenuLazy');
-    patches.unshift(before('openContextMenuLazy', openContextMenuLazy, args => {
+    let lazyPatch = before('openContextMenuLazy', openContextMenuLazy, args => {
       const lazyRender = args[1];
       args[1] = async () => {
         const render = await lazyRender(args[0]);
@@ -20,14 +20,14 @@ const lazyPatchContextMenu = async (displayName, patch) => {
           const menu = render(config);
 
           if (menu?.type?.displayName === displayName && patch) {
-            patches[0](); patch(find(filter)); patch = false;
+            lazyPatch(); patch(find(filter)); patch = false;
           }
           
           return menu;
         };
       };
       return args;
-    }));
+    });
   }
 };
 
