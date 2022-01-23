@@ -57,11 +57,11 @@ export default ({ event, roles = {}, permissions }) => {
             const permissionDeny = roles?.[role]?.permissionsDeny;
             const administrator = (permission & Permissions.ADMINISTRATOR) === Permissions.ADMINISTRATOR;
             return (
-              <Flex style={{ paddingLeft: '12px', paddingRight: '264px' }} align={'alignCenter-14kD11'} className='reactorDefault-3GSyaV reactor-1J25Qp'>
+              <Flex style={{ paddingLeft: '12px', paddingRight: '264px' }} align={Flex.Align.CENTER} className={Classes.ReactionModal.reactorDefault}>
                 <Flex.Child grow={0} shrink={0}>
                   {((permission & Permissions[listPermission]) === Permissions[listPermission]
                     && (permissionDeny ? (permissionDeny & Permissions[listPermission]) !== Permissions[listPermission] : true)) || administrator
-                    ? <CheckmarkIcon className height={24} width={24} color='#43B581' />
+                    ? <CheckmarkIcon height={24} width={24} color='#43B581' />
                     : <CrossmarkIcon height={24} width={24} color='#F04747' />}
                 </Flex.Child>
                 <Flex.Child>
