@@ -35,8 +35,6 @@ const patchGuildContextMenu = () => {
           openModal(event => <PermissionList event={event} roles={args.guild.roles} />);
         }} />
       </>);
-
-      return ret;
     }));
   });
 };
@@ -60,32 +58,29 @@ const patchGuildChannelUserContextMenu = () => {
           openModal(event => <PermissionList event={event} permissions={permissions} />);
         }} />
       </>);
-
-      return ret;
     }));
   });
 };
 
 const patchChannelListTextChannelContextMenu = () => {
-  const ChannelListTextChannelContextMenu = find(m => m.default?.displayName === 'ChannelListTextChannelContextMenu');
-  Patcher.patch(after('default', ChannelListTextChannelContextMenu, ([args], ret) => {
-    const newPermissions = Object.values(args.guild.roles).map(role => {
-      if (!~Object.keys(args.channel.permissionOverwrites).indexOf(role.id)) return;
-      const _role = { ...role };
-      _role.permissions |= args.channel.permissionOverwrites[role.id].allow;
-      _role.permissionsDeny = args.channel.permissionOverwrites[role.id].deny;
-      return _role;
-    }).filter(Boolean).reduce((accum, role) => Object.assign(accum, { [role.id]: role }), {});
+  Patcher.lazyPatchContextMenu('ChannelListTextChannelContextMenu', ChannelListTextChannelContextMenu => {
+    Patcher.patch(after('default', ChannelListTextChannelContextMenu, ([args], ret) => {
+      const newPermissions = Object.values(args.guild.roles).map(role => {
+        if (!~Object.keys(args.channel.permissionOverwrites).indexOf(role.id)) return;
+        const _role = { ...role };
+        _role.permissions |= args.channel.permissionOverwrites[role.id].allow;
+        _role.permissionsDeny = args.channel.permissionOverwrites[role.id].deny;
+        return _role;
+      }).filter(Boolean).reduce((accum, role) => Object.assign(accum, { [role.id]: role }), {});
 
-    ret?.props?.children?.splice(1, 0, <>
-      <ContextMenu.MenuSeparator />
-      <ContextMenu.MenuItem label='View Permissions' id='permissions' action={() => {
-        openModal(event => <PermissionList event={event} roles={newPermissions} />);
-      }} />
-    </>);
-
-    return ret;
-  }));
+      ret?.props?.children?.splice(1, 0, <>
+        <ContextMenu.MenuSeparator />
+        <ContextMenu.MenuItem label='View Permissions' id='permissions' action={() => {
+          openModal(event => <PermissionList event={event} roles={newPermissions} />);
+        }} />
+      </>);
+    }));
+  });
 };
 
 export default () => {

@@ -4,6 +4,7 @@ export const patch = unpatch => unpatch && patches.push(unpatch);
 export const unpatchAll = () => patches.forEach(unpatch => unpatch());
 
 // credits to juby and i think xinos
+import { before } from '@cumcord/patcher';
 import { find, findByProps } from '@cumcord/modules/webpack';
 const lazyPatchContextMenu = async (displayName, patch) => {
   const filter = m => m.default && m.default.displayName === displayName;
@@ -19,7 +20,7 @@ const lazyPatchContextMenu = async (displayName, patch) => {
           const menu = render(config);
 
           if (menu?.type?.displayName === displayName && patch) {
-            unpatch[0](); patch(find(filter)); patch = false;
+            patches[0](); patch(find(filter)); patch = false;
           }
           
           return menu;
@@ -30,4 +31,4 @@ const lazyPatchContextMenu = async (displayName, patch) => {
   }
 };
 
-export default { patch, unpatchAll, lazyPatchContextMenu }
+export default { patch, unpatchAll, lazyPatchContextMenu };
