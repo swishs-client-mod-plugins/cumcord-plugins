@@ -1,0 +1,7 @@
+{
+  "name": "Enhanced PFP Viewer",
+  "description": "Adds an option to the user context menu to view their pfp in an image modal.",
+  "author": "Swishilicous#3200",
+  "file": "index.jsx",
+  "license": "GPL-3.0"
+}
