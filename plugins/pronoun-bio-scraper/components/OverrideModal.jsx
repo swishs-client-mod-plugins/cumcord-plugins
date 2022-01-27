@@ -12,6 +12,8 @@
  * @link      https://github.com/swishs-client-mod-plugins/cumcord-plugins/tree/main/plugins/pronoun-bio-scraper
  */
 
+import combinePronouns from '../apis/combinePronouns';
+
 import { persist } from '@cumcord/pluginData';
 import { ErrorBoundary } from '@cumcord/ui/components';
 import { findByProps, findByDisplayName } from '@cumcord/modules/webpack';
@@ -23,24 +25,35 @@ const Header = findByProps('Sizes', 'Tags');
 const TextInput = findByDisplayName('TextInput');
 const classes = findByProps('anchorUnderlineOnHover');
 const ModalComponents = findByProps('ModalCloseButton');
-const getUser = findByProps('getUser', 'filter').getUser;
 
-export default ({ e, author, extract }) => {
-  const defaultPronouns = extract(getUser(author).bio) ?? '';
-  const placeholderPronouns = author in persist ? persist[author] : defaultPronouns;
-  const [pronouns, setPronouns] = React.useState(placeholderPronouns);
-  const onEnter = (event) => {
-    if (event.key !== 'Enter') return;
+let defaultPronouns;
+export default ({ event, author }) => {
+  const [pronouns, setPronouns] = React.useState('Loading...');
+
+  const onEnter = (keyPressEvent) => {
+    if (keyPressEvent.key !== 'Enter') return;
     persist[author] = pronouns;
-    e.onClose();
+    event.onClose();
   };
+
   React.useEffect(() => {
     document.addEventListener('keydown', onEnter);
     return () => document.removeEventListener('keydown', onEnter);
   });
+  console.log(defaultPronouns);
+
+  React.useEffect(async () => {
+    defaultPronouns = await combinePronouns(author) ?? '';
+
+    const pronouns = persist.ghost[author.id]
+      ? persist.ghost[author.id] : defaultPronouns;
+
+    setPronouns(pronouns);
+  }, []);
+
   return (
     <ModalComponents.ModalRoot
-      transitionState={e.transitionState}
+      transitionState={event.transitionState}
       className='pronoun-overide-modal'
       size='small'
     >
@@ -52,7 +65,7 @@ export default ({ e, author, extract }) => {
             </Header>
           </Flex.Child>
           <Flex.Child basis='auto' grow={0} shrink={1} wrap={false}>
-            <ModalComponents.ModalCloseButton onClick={e.onClose} />
+            <ModalComponents.ModalCloseButton onClick={event.onClose} />
           </Flex.Child>
         </ModalComponents.ModalHeader>
         <ModalComponents.ModalContent>
@@ -73,14 +86,16 @@ export default ({ e, author, extract }) => {
         <ModalComponents.ModalFooter>
           <Button
             onClick={() => {
-              persist[author] = pronouns;
-              e.onClose();
+              if (pronouns === defaultPronouns)
+                delete persist.store[author.id];
+              else persist.store[author.id] = pronouns;
+              event.onClose();
             }}
             color={Button.Colors.BRAND_NEW}>
             Change Pronouns
           </Button>
           <Button
-            onClick={e.onClose}
+            onClick={event.onClose}
             look={Button.Looks.LINK}
             color={Button.Colors.TRANSPARENT}>
             Cancel

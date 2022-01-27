@@ -22,10 +22,9 @@ export default () => {
   useNest(persist);
   return <>
     <SwitchItem
-      note='This may get you rate limited if you hop to a bunch of servers in quick succession but you should for the most part be fine. (Use at your own discretion)'
-      onChange={() => (persist.store.fetch = !persist.ghost.fetch)}
-      value={persist.ghost.fetch}>
-      Automatically Fetch Pronouns (get rid of "still loading")
+      onChange={() => (persist.store.pronoundb = !persist.ghost.pronoundb)}
+      value={persist.ghost.pronoundb}>
+      PronounDB Support
     </SwitchItem>
-  </>
+  </>;
 };
