@@ -13,10 +13,11 @@
  */
 
 import { after } from '@cumcord/patcher';
+import { findInReactTree } from '@cumcord/utils';
 import { constants } from '@cumcord/modules/common';
 import { findByProps } from '@cumcord/modules/webpack';
 
-import Patcher from './patch-handler';
+import Patcher from './Patcher';
 import PermissionList from './PermissionList';
 
 const ContextMenu = findByProps('MenuGroup', 'MenuItem');
@@ -29,7 +30,8 @@ const { openModal } = findByProps('openModal', 'openModalLazy');
 const patchGuildContextMenu = () => {
   Patcher.lazyPatchContextMenu('GuildContextMenu', GuildContextMenu => {
     Patcher.patch(after('default', GuildContextMenu, ([args], ret) => {
-      ret?.props?.children?.splice(1, 0, <>
+      const MenuItems = findInReactTree(ret, c => Array.isArray(c.children))?.children;
+      MenuItems?.splice(1, 0, <>
         <ContextMenu.MenuSeparator />
         <ContextMenu.MenuItem label='View Permissions' id='permissions' action={() => {
           openModal(event => <PermissionList event={event} roles={args.guild.roles} />);
@@ -42,6 +44,7 @@ const patchGuildContextMenu = () => {
 const patchGuildChannelUserContextMenu = () => {
   Patcher.lazyPatchContextMenu('GuildChannelUserContextMenu', GuildChannelUserContextMenu => {
     Patcher.patch(after('default', GuildChannelUserContextMenu, ([args], ret) => {
+      const MenuItems = findInReactTree(ret, c => Array.isArray(c.children))?.children;
       const guild = getGuild(args.guildId);
       const member = getMember(args.guildId, args.user.id);
       const permissions = guild.ownerId === args.user.id
@@ -52,7 +55,7 @@ const patchGuildChannelUserContextMenu = () => {
             ? accum | role.permissions
             : accum, 0n | guild.roles[args.guildId].permissions);
 
-      ret?.props?.children?.props?.children?.splice(2, 0, <>
+      MenuItems?.splice(2, 0, <>
         <ContextMenu.MenuSeparator />
         <ContextMenu.MenuItem label='View Permissions' id='permissions' action={() => {
           openModal(event => <PermissionList event={event} permissions={permissions} />);
@@ -65,6 +68,7 @@ const patchGuildChannelUserContextMenu = () => {
 const patchChannelListTextChannelContextMenu = () => {
   Patcher.lazyPatchContextMenu('ChannelListTextChannelContextMenu', ChannelListTextChannelContextMenu => {
     Patcher.patch(after('default', ChannelListTextChannelContextMenu, ([args], ret) => {
+      const MenuItems = findInReactTree(ret, c => Array.isArray(c.children))?.children;
       const newPermissions = Object.values(args.guild.roles).map(role => {
         if (!~Object.keys(args.channel.permissionOverwrites).indexOf(role.id)) return;
         const _role = { ...role };
@@ -73,7 +77,7 @@ const patchChannelListTextChannelContextMenu = () => {
         return _role;
       }).filter(Boolean).reduce((accum, role) => Object.assign(accum, { [role.id]: role }), {});
 
-      ret?.props?.children?.splice(1, 0, <>
+      MenuItems?.splice(1, 0, <>
         <ContextMenu.MenuSeparator />
         <ContextMenu.MenuItem label='View Permissions' id='permissions' action={() => {
           openModal(event => <PermissionList event={event} roles={newPermissions} />);

@@ -1,7 +1,7 @@
 /* feel free to copy this code */
 const patches = [];
 export const patch = unpatch => unpatch && patches.push(unpatch);
-export const unpatchAll = () => patches.forEach(unpatch => unpatch());
+export const unpatchAll = () => patches.forEach(async unpatch => await unpatch());
 
 // credits to juby and i think xinos
 import { before } from '@cumcord/patcher';
@@ -22,7 +22,7 @@ const lazyPatchContextMenu = async (displayName, patch) => {
           if (menu?.type?.displayName === displayName && patch) {
             lazyPatch(); patch(find(filter)); patch = false;
           }
-          
+
           return menu;
         };
       };
