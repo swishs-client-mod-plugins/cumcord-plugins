@@ -1,0 +1,51 @@
+lockfileVersion: 5.3
+
+specifiers:
+  discord-types: ^1.1.5
+
+dependencies:
+  discord-types: 1.1.5
+
+packages:
+
+  /@types/fbemitter/2.0.32:
+    resolution: {integrity: sha1-jtIE2g9U6cjq7DGx7skeJRMtCCw=}
+    dev: false
+
+  /@types/flux/3.1.11:
+    resolution: {integrity: sha512-Aq4UB1ZqAKcPbhB0GpgMw2sntvOh71he9tjz53TLKrI7rw3Y3LxCW5pTYY9IV455hQapm4pmxFjpqlWOs308Yg==}
+    dependencies:
+      '@types/fbemitter': 2.0.32
+      '@types/react': 17.0.41
+    dev: false
+
+  /@types/prop-types/15.7.4:
+    resolution: {integrity: sha512-rZ5drC/jWjrArrS8BR6SIr4cWpW09RNTYt9AMZo3Jwwif+iacXAqgVjm0B0Bv/S1jhDXKHqRVNCbACkJ89RAnQ==}
+    dev: false
+
+  /@types/react/17.0.41:
+    resolution: {integrity: sha512-chYZ9ogWUodyC7VUTRBfblysKLjnohhFY9bGLwvnUFFy48+vB9DikmB3lW0qTFmBcKSzmdglcvkHK71IioOlDA==}
+    dependencies:
+      '@types/prop-types': 15.7.4
+      '@types/scheduler': 0.16.2
+      csstype: 3.0.11
+    dev: false
+
+  /@types/scheduler/0.16.2:
+    resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
+    dev: false
+
+  /csstype/3.0.11:
+    resolution: {integrity: sha512-sa6P2wJ+CAbgyy4KFssIb/JNMLxFvKF1pCYCSXS8ZMuqZnMsrxqI2E5sPyoTpxoPU/gVZMzr2zjOfg8GIZOMsw==}
+    dev: false
+
+  /discord-types/1.1.5:
+    resolution: {integrity: sha512-WL+PRz9tGjDGFWiVezC2bEZy8/HSyk/UMKiCBB2cHi7fEAK3zxMNKacOVr7BF0gKscfAxJM13CzR2w+pe1tP0g==}
+    dependencies:
+      '@types/flux': 3.1.11
+      moment: 2.29.1
+    dev: false
+
+  /moment/2.29.1:
+    resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
+    dev: false

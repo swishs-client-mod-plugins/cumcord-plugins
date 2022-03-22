@@ -1,0 +1,7 @@
+{
+  "name": "Ignore Stars",
+  "description": "plugin for iris to ignore marking as read on github stars",
+  "author": "Swishilicous#3200",
+  "file": "index.tsx",
+  "license": "MIT"
+}
