@@ -19,7 +19,7 @@ const onMessage = (event: {
   if (
     !event.message ||
     event.optimistic ||
-    UnreadStore.getUnreadCount(event.channelId) > 2 ||
+    UnreadStore.getUnreadCount(event.channelId) >= 2 ||
     !event.message.embeds?.[0]?.title?.includes('star') ||
     ChannelStateStore.isChannelMuted(event.message.guild_id, event.channelId)
   ) return;
