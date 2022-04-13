@@ -27,7 +27,7 @@ export default () => {
   return (
     <>
       <SwitchItem
-        note='Delete messages (if you can) when you hold delete and clock on them.'
+        note='Delete messages (if you can) when you hold delete and click on them.'
         onChange={() => (persist.store.deleteMessages = !persist.ghost.deleteMessages)}
         value={persist.ghost.deleteMessages}>
         Delete Messages
