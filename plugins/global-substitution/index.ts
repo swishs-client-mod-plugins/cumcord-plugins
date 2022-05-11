@@ -23,7 +23,7 @@ namespace GlobalSub {
     const cached = req.c[id];
 
     // Save for the unpatch.
-    cachedModule = cached;
+    cachedModule = cached.exports;
 
     // I'm still not sure if any webpack modules use this but it's here in case.
     const firstArg = { exports: {}, id, loaded: false };
