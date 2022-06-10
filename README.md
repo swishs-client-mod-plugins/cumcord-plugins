@@ -34,4 +34,4 @@ Lets you see the permissions of channels, roles, and users.</p>
 Adds an option to the user context menu to view their pfp in an image modal. (Requested by sip឵#0666)</p>
 
 ---
-`The license does not apply to this readme; feel free to copy it and use it in your own repositorys.`
+`The license does not apply to this readme; feel free to copy it and use it in your own repositories.`
